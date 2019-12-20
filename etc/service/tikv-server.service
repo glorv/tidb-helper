@@ -4,7 +4,8 @@ Wants=network-online.target
 
 [Service]
 User=tidb
-ExecStart=/usr/bin/tikv-server --config $CONFIGURATION_DIRECTORY/tikv/config.toml
+Group=tidb
+ExecStart=/usr/bin/tikv-server --config $CONFIGURATION_DIRECTORY/config.toml
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 KillSignal=SIGINT

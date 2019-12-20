@@ -6,10 +6,10 @@ Wants=network-online.target
 [Service]
 User=tidb
 Group=tidb
-EnvironmentFile=-/etc/sysconfig/tidb-server
-ExecStart=/usr/bin/tikv-server --config $CONFIGURATION_DIRECTORY/tidb/config.toml
+ExecStart=/usr/bin/tidb-server --config $CONFIGURATION_DIRECTORY/config.toml
 ExecReload=/bin/kill -HUP \$MAINPID
 KillSignal=SIGINT
+ConfigurationDirectory=tidb
 Restart=on-failure
 
 [Install]

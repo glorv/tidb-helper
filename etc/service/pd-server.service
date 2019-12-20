@@ -4,6 +4,7 @@ Wants=network-online.target
 
 [Service]
 User=tidb
+Group=tidb
 ExecStart=/usr/bin/pd-server --config $CONFIGURATION_DIRECTORY/pd/config.toml
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
