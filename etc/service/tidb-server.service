@@ -1,5 +1,9 @@
 [Unit]
+<<<<<<< HEAD
 Description=TiDB server daemon
+=======
+Description=TiDB Server
+>>>>>>> fix service description
 After=network-online.target
 Wants=network-online.target
 

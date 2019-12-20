@@ -87,11 +87,7 @@ exit 0
 %files
 %{_bindir}/tidb-server
 %{_unitdir}/tidb-server.service
-<<<<<<< HEAD
 %config(noreplace) %{_sysconfdir}/tidb/config.toml
-=======
-%config %{_sysconfdir}/tidb/config.toml
->>>>>>> remove .example for config files
 %dir %{_sysconfdir}/tidb
 %dir %attr(0755, tidb, tidb) %{_sharedstatedir}/tidb
 %dir %attr(0755, tidb, tidb) %{_localstatedir}/log/tidb
@@ -99,11 +95,7 @@ exit 0
 %{_bindir}/tikv-server
 %{_bindir}/tikv-ctl
 %{_unitdir}/tikv-server.service
-<<<<<<< HEAD
 %config(noreplace) %{_sysconfdir}/tikv/config.toml
-=======
-%config %{_sysconfdir}/tikv/config.toml
->>>>>>> remove .example for config files
 %dir %{_sysconfdir}/tikv
 %dir %attr(0755, tidb, tidb) %{_sharedstatedir}/tikv
 %dir %attr(0755, tidb, tidb) %{_localstatedir}/log/tikv

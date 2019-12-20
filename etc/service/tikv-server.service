@@ -1,5 +1,9 @@
 [Unit]
+<<<<<<< HEAD
 Description=TiKV server daemon
+=======
+Description=TiKV Server
+>>>>>>> fix service description
 Wants=network-online.target
 
 [Service]
