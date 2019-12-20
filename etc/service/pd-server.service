@@ -1,5 +1,5 @@
 [Unit]
-Description=PD is the abbreviation for Placement Driver. It is used to manage and schedule the TiKV cluster.
+Description=PD Server
 Wants=network-online.target
 
 [Service]

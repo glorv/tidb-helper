@@ -1,5 +1,5 @@
 [Unit]
-Description=TiKV, a distributed transactional key value store.
+Description=TiKV Server
 Wants=network-online.target
 
 [Service]

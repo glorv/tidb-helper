@@ -1,5 +1,5 @@
 [Unit]
-Description=TiDB is a distributed NewSQL database compatible with MySQL protocol
+Description=TiDB Server
 After=network-online.target
 Wants=network-online.target
 
