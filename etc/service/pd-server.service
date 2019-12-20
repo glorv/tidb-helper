@@ -1,9 +1,5 @@
 [Unit]
-<<<<<<< HEAD
 Description=PD server daemon
-=======
-Description=PD Server
->>>>>>> fix service description
 Wants=network-online.target
 
 [Service]
