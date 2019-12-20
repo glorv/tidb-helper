@@ -5,12 +5,11 @@ Wants=network-online.target
 [Service]
 User=tidb
 Group=tidb
-ExecStart=/usr/bin/tikv-server --config $CONFIGURATION_DIRECTORY/config.toml
+ExecStart=/usr/bin/tikv-server --config /etc/tikv/config.toml
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 KillSignal=SIGINT
 LimitNOFILE=1024
-ConfigurationDirectory=tikv
 WorkingDirectory=/var/lib/tikv/
 
 [Install]
