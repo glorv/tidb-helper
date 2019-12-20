@@ -1,5 +1,5 @@
 [Unit]
-Description=TiKV Server
+Description=TiKV server daemon
 Wants=network-online.target
 
 [Service]

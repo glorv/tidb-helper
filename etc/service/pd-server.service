@@ -1,5 +1,5 @@
 [Unit]
-Description=PD Server
+Description=PD server daemon
 Wants=network-online.target
 
 [Service]
