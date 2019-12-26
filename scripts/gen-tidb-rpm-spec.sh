@@ -65,11 +65,11 @@ TiDB features:
 %{__mkdir} -p \$RPM_BUILD_ROOT%{_sharedstatedir}/pd
 %{__mkdir} -p \$RPM_BUILD_ROOT%{_localstatedir}/log/pd
 
-%{__install} -D -p -m 0755 %{_sourcedir}/bin/etcd-ctl \$RPM_BUILD_ROOT%{_bindir}/etcd-ctl
-%{__install} -D -p -m 0755 %{_sourcedir}/bin/binlog-ctl \$RPM_BUILD_ROOT%{_bindir}/binlog-ctl
+%{__install} -D -p -m 0755 %{_sourcedir}/bin/etcdctl \$RPM_BUILD_ROOT%{_bindir}/etcdctl
+%{__install} -D -p -m 0755 %{_sourcedir}/bin/binlogctl \$RPM_BUILD_ROOT%{_bindir}/binlogctl
 
 %{__install} -D -p -m 0755 %{_sourcedir}/bin/arbiter \$RPM_BUILD_ROOT%{_bindir}/arbiter
-%{__install} -D -m 0644 %{_sourcedir}/config/arbiter/arbiter.toml \$RPM_BUILD_ROOT%{_sysconfdir}/tikv/arbiter.toml
+%{__install} -D -m 0644 %{_sourcedir}/config/arbiter/arbiter.toml \$RPM_BUILD_ROOT%{_sysconfdir}/arbiter/arbiter.toml
 %{__install} -D -m 0644 %{_sourcedir}/service/arbiter.service \$RPM_BUILD_ROOT%{_unitdir}/arbiter.service
 %{__mkdir} -p \$RPM_BUILD_ROOT%{_sharedstatedir}/arbiter
 %{__mkdir} -p \$RPM_BUILD_ROOT%{_localstatedir}/log/arbiter
@@ -121,6 +121,7 @@ exit 0
 
 %files
 %{_bindir}/tidb-server
+%{_bindir}/tidb-ctl
 %{_unitdir}/tidb-server.service
 %config(noreplace) %{_sysconfdir}/tidb/config.toml
 %dir %{_sysconfdir}/tidb
@@ -144,8 +145,8 @@ exit 0
 %dir %attr(0755, tidb, tidb) %{_sharedstatedir}/pd
 %dir %attr(0755, tidb, tidb) %{_localstatedir}/log/pd
 
-%{_bindir}/binlog-ctl
-%{_bindir}/etcd-ctl
+%{_bindir}/binlogctl
+%{_bindir}/etcdctl
 
 %{_bindir}/arbiter
 %{_unitdir}/arbiter.service
