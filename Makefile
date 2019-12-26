@@ -10,7 +10,12 @@ PROJECT_TIDB_BINLOG=tidb-binlog
 PROJECT_TIKV=tikv
 PROJECT_TIKV_IMPORTER=importer
 PROJECT_PD=pd
+<<<<<<< HEAD
 PROJECT_ETCD=etcd
+=======
+PROJECT_TIDB_LIGHTNING=tidb-lightning
+PROJECT_TIDB_TOOLS=tidb-tools
+>>>>>>> 85f409e9e93df8387540a2154133c022382a5ac1
 
 ORG_PINGCAP=pingcap
 ORG_TIKV=tikv
@@ -79,6 +84,7 @@ $(SOURCE_DIR):
 	mkdir -p $(SOURCE_DIR)
 
 .PHONY: TIDB_SOURCE TIKV_SOURCE PD_SOURCE TIDB_LIGHTNING_SOURCE TIDB_TOOLS_SOURCE
+.PHONY: TIDB_CTL_SOURCE TIDB_BINLOG_SOURCE TIKV_IMPORTER_SOURCE
 # don't use directory so we can force update the projects each time.
 TIDB_SOURCE: $(SOURCE_DIR)
 	$(call fetch_source, $(TIDB_SOURCE),$(GIT_URL_TIDB))
@@ -291,13 +297,15 @@ deb-toolkit: build-prepare deb-builder $(ARTIFACT_BINARY_TOOLKIT)  $(ARTIFACT_DI
 	install -D -m 0755 $(ARTIFACT_BINARY_TOOLKIT)/sync_diff_inspector ${ARTIFACT_PACKAGE}/usr/bin/sync_diff_inspector
 
 	install -D -m 0644 $(TIKV_IMPORTER_SOURCE)/etc/tikv-importer.toml ${ARTIFACT_PACKAGE}/etc/tikv-importer/tikv-importer.toml
+
 	install -D -m 0644 $(TIDB_LIGHTNING_SOURCE)/tidb-lightning.toml ${ARTIFACT_PACKAGE}/etc/tidb-lightning/tidb-lightning.toml
 	install -D -m 0644 $(TIDB_TOOLS_SOURCE)/sync_diff_inspector/config_sharding.toml ${ARTIFACT_PACKAGE}/etc/sync_diff_inspector/config_sharding.toml
 	install -D -m 0644 $(TIDB_TOOLS_SOURCE)/sync_diff_inspector/config.toml ${ARTIFACT_PACKAGE}/etc/sync_diff_inspector/config.toml
 	install -D -m 0644 etc/service/tidb-lightning.service ${ARTIFACT_PACKAGE}/usr/lib/systemd/system/tidb-lightning.service
 	install -D -m 0644 etc/service/tikv-importer.service ${ARTIFACT_PACKAGE}/usr/lib/systemd/system/tikv-importer.service
 
-	mkdir -p ${ARTIFACT_PACKAGE}/var/lib/tidb-lightning ${ARTIFACT_PACKAGE}/var/lib/tikv-importer ${ARTIFACT_PACKAGE}/var/lib/sync_diff_inspector
+	mkdir -p ${ARTIFACT_PACKAGE}/var/lib/tidb-lightning ${ARTIFACT_PACKAGE}/var/lib/tikv-importer \
+		${ARTIFACT_PACKAGE}/var/lib/sync_diff_inspector
 
 	bash scripts/gen-tidb-toolkit-deb-control.sh $(VERSION) | install -D /dev/stdin ${ARTIFACT_PACKAGE}/DEBIAN/control
 	install -D -m 0755 etc/deb/tidb-toolkit/preinst ${ARTIFACT_PACKAGE}/DEBIAN/preinst
