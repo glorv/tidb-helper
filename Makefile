@@ -7,6 +7,9 @@ PROJECT_TIKV=tikv
 PROJECT_PD=pd
 PROJECT_TIDB_LIGHTNING=tidb-lightning
 PROJECT_TIDB_TOOLS=tidb-tools
+PROJECT_TIDB_CTL=tidb-ctl
+PROJECT_TIDB_BINLOG=tidb-binlog
+PROJECT_ETCD=etcd
 
 ORG_PINGCAP=pingcap
 ORG_TIKV=tikv
@@ -18,21 +21,35 @@ GIT_URL_TIKV=$(GIT_REPO_BASE_URL)/$(ORG_TIKV)/$(PROJECT_TIKV)$(GIT_POSTFIX)
 GIT_URL_PD=$(GIT_REPO_BASE_URL)/$(ORG_PINGCAP)/$(PROJECT_PD)$(GIT_POSTFIX)
 GIT_URL_TIDB_LIGHTNING=$(GIT_REPO_BASE_URL)/$(ORG_PINGCAP)/$(PROJECT_TIDB_LIGHTNING)$(GIT_POSTFIX)
 GIT_URL_TIDB_TOOLS=$(GIT_REPO_BASE_URL)/$(ORG_PINGCAP)/$(PROJECT_TIDB_TOOLS)$(GIT_POSTFIX)
+GIT_URL_TIDB_CTL=$(GIT_REPO_BASE_URL)/$(ORG_PINGCAP)/$(PROJECT_TIDB_CTL)$(GIT_POSTFIX)
+GIT_URL_TIDB_BINLOG=$(GIT_REPO_BASE_URL)/$(ORG_PINGCAP)/$(PROJECT_TIDB_BINLOG)$(GIT_POSTFIX)
+
+ETCD_TAG_VER=v3.3.10
+ETCD_PACKAGE_NAME=$(PROJECT_ETCD)-$(ETCD_TAG_VER)-linux-amd64
+ETCD_TARBALL_NAME=$(ETCD_PACKAGE_NAME).tar.gz
+ETCD_V_3_3_10_BIN_URL=$(GIT_REPO_BASE_URL)/etcd-io/etcd/releases/download/$(ETCD_TAG_VER)/$(ETCD_TARBALL_NAME)
 
 BUILD_DIR=build
 SOURCE_DIR=$(BUILD_DIR)/src
+
 TIDB_SOURCE=$(SOURCE_DIR)/$(PROJECT_TIDB)
 TIKV_SOURCE=$(SOURCE_DIR)/$(PROJECT_TIKV)
 PD_SOURCE=$(SOURCE_DIR)/$(PROJECT_PD)
+TIDB_CTL_SOURCE=$(SOURCE)/$(PROJECT_TIDB_CTL)
 TIDB_LIGHTNING_SOURCE=$(SOURCE_DIR)/$(PROJECT_TIDB_LIGHTNING)
 TIDB_TOOLS_SOURCE=$(SOURCE_DIR)/$(PROJECT_TIDB_TOOLS)
+ETCD_BINARY_SOURCE=$(SOURCE_DIR)/$(ETCD_PACKAGE_NAME)
+
 BINARY_DIR=$(BUILD_DIR)/bin
 ARTIFACT_BINARY=$(BINARY_DIR)/$(VERSION)
 ARTIFACT_DIR=$(BUILD_DIR)/dist
+
 TIDB_DOCKER_IMAGE_NAME=tidb-docker
 TIDB_DOCKER_IMAGE_TAG=$(ORG_PINGCAP)/$(TIDB_DOCKER_IMAGE_NAME):$(VERSION)
+
 ARTIFACT_DOCKER=${ARTIFACT_DIR}/$(TIDB_DOCKER_IMAGE_NAME)-$(VERSION).tar.gz
 ARTIFACT_PACKAGE=$(ARTIFACT_DIR)/tidb-pkg
+
 BUILDER_PREFIX=tidb-builder
 BUILDER_IMAGE_BINARY=$(ORG_PINGCAP)/$(BUILDER_PREFIX)-binary
 BUILDER_IMAGE_RPM=$(ORG_PINGCAP)/$(BUILDER_PREFIX)-rpm
@@ -52,22 +69,37 @@ endef
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
+$(SOURCE_DIR):
+	mkdir -p $(SOURCE_DIR)
+
 .PHONY: TIDB_SOURCE TIKV_SOURCE PD_SOURCE TIDB_LIGHTNING_SOURCE TIDB_TOOLS_SOURCE
 # don't use directory so we can force update the projects each time.
-TIDB_SOURCE:
+TIDB_SOURCE: $(SOURCE_DIR)
 	$(call fetch_source, $(TIDB_SOURCE),$(GIT_URL_TIDB))
 
-TIKV_SOURCE:
+TIKV_SOURCE: $(SOURCE_DIR)
 	$(call fetch_source, $(TIKV_SOURCE),$(GIT_URL_TIKV))
 
-PD_SOURCE:
+PD_SOURCE: $(SOURCE_DIR)
 	$(call fetch_source, $(PD_SOURCE),$(GIT_URL_PD))
 
-TIDB_LIGHTNING_SOURCE:
+TIDB_LIGHTNING_SOURCE: $(SOURCE_DIR)
 	$(call fetch_source, $(TIDB_LIGHTNING_SOURCE), $(GIT_URL_TIDB_LIGHTNING))
 
-TIDB_TOOLS_SOURCE:
+TIDB_TOOLS_SOURCE: $(SOURCE_DIR)
 	$(call fetch_source, $(TIDB_TOOLS_SOURCE), $(GIT_URL_TIDB_TOOLS))
+
+TIDB_CTL_SOURCE: $(SOURCE_DIR)
+	$(call fetch_source, $(TIDB_CTL_SOURCE), $(GIT_URL_TIDB_CTL))
+
+TIDB_BINLOG_SOURCE: $(SOURCE_DIR)
+	$(call fetch_source, $(TIDB_BINLOG_SOURCE), $(GIT_URL_TIDB_BINLOG))
+
+$(ETCD_BINARY_SOURCE): $(SOURCE_DIR)
+	@echo $(ETCD_BINARY_SOURCE)
+	wget $(ETCD_V_3_3_10_BIN_URL)
+	tar -zxf $(ETCD_TARBALL_NAME) -C $(SOURCE_DIR)
+	rm -f $(ETCD_TARBALL_NAME)
 
 .PHONY: check
 check:
@@ -77,7 +109,7 @@ endif
 
 .PHONY: source source-tidb source-toolkit
 source: source-tidb source-tidb-toolkit
-source-tidb: TIDB_SOURCE TIKV_SOURCE PD_SOURCE
+source-tidb: TIDB_SOURCE TIKV_SOURCE PD_SOURCE TIDB_CTL_SOURCE TIDB_BINLOG_SOURCE
 source-tidb-toolkit: TIDB_LIGHTNING_SOURCE TIDB_TOOLS_SOURCE
 
 .PHONY: binary
@@ -86,12 +118,15 @@ binary: build-prepare $(ARTIFACT_BINARY)
 $(ARTIFACT_DIR):
 	mkdir -p $(ARTIFACT_DIR)
 
-$(ARTIFACT_BINARY):
+$(ARTIFACT_BINARY): $(ETCD_BINARY_SOURCE)
 # checkout and update source code here
 ifdef TAG
 	$(call update_source_tag, $(TIDB_SOURCE),$(GIT_URL_TIDB), $(TAG))
 	$(call update_source_tag, $(TIKV_SOURCE),$(GIT_URL_TIKV), $(TAG))
 	$(call update_source_tag, $(PD_SOURCE),$(GIT_URL_PD), $(TAG))
+	# always build tidb-ctl at master branch
+	$(call update_source_tag, $(TIDB_CTL_SOURCE),$(GIT_URL_TIDB_CTL), master)
+	$(call update_source_tag, $(TIDB_BINLOG_SOURCE),$(GIT_URL_TIDB_BINLOG), $(TAG))
 	$(call update_source_tag, $(TIDB_LIGHTNING_SOURCE),$(GIT_URL_TIDB_LIGHTNING), $(TAG))
 	$(call update_source_tag, $(TIDB_TOOLS_SOURCE),$(GIT_URL_TIDB_TOOLS), $(TAG))
 endif
@@ -99,11 +134,14 @@ endif
 		-v $(realpath $(TIDB_SOURCE)):/build/tidb \
 		-v $(realpath $(TIKV_SOURCE)):/build/tikv \
 		-v $(realpath $(PD_SOURCE)):/build/pd \
+		-v $(realpath $(TIDB_BINLOG_SOURCE)):/build/tidb-binlog \
+		-v $(realpath $(TIDB_CTL_SOURCE)):/build/tidb-ctl \
 		-v $(realpath $(TIDB_LIGHTNING_SOURCE)):/build/tidb-lightning \
 		-v $(realpath $(TIDB_TOOLS_SOURCE)):/build/tidb-tools \
 		-v $(CURDIR)/scripts/build.sh:/build.sh \
 		-v $(CURDIR)/${ARTIFACT_BINARY}:/out \
 		$(BUILDER_IMAGE_BINARY) /build.sh
+	cp $(ETCD_BINARY_SOURCE)/etcd-ctl $(ARTIFACT_BINARY)
 
 $(ARTIFACT_DOCKER): $(ARTIFACT_BINARY) $(ARTIFACT_DIR)
 	mkdir -p $(ARTIFACT_DIR)
@@ -131,6 +169,7 @@ rpm-tidb: $(ARTIFACT_BINARY) $(ARTIFACT_DIR)
 	$(eval tidb_path = $(realpath $(TIDB_SOURCE)))
 	$(eval tikv_path = $(realpath $(TIKV_SOURCE)))
 	$(eval pd_path = $(realpath $(PD_SOURCE)))
+	$(eval binlog_path = $(realpath $(TIDB_BINLOG_SOURCE)))
 	docker run \
 		--rm \
 		-v $(CURDIR)/${ARTIFACT_BINARY}:/root/rpmbuild/SOURCES/bin \
@@ -140,6 +179,10 @@ rpm-tidb: $(ARTIFACT_BINARY) $(ARTIFACT_DIR)
 		-v $(pd_path)/conf/config.toml:/root/rpmbuild/SOURCES/config/pd/config.toml \
 		-v $(tidb_path)/LICENSE:/root/rpmbuild/BUILD/LICENSE \
 		-v $(tidb_path)/README.md:/root/rpmbuild/BUILD/README.md \
+		-v $(binlog_path)/cmd/arbiter/arbiter.toml:/root/rpmbuild/SOURCES/config/arbiter/arbiter.toml \
+		-v $(binlog_path)/cmd/drainer/drainer.toml:/root/rpmbuild/SOURCES/config/drainer/drainer.toml \
+		-v $(binlog_path)/cmd/pump/pump.toml:/root/rpmbuild/SOURCES/config/pump/pump.toml \
+		-v $(binlog_path)/cmd/reparo/reparo.toml:/root/rpmbuild/SOURCES/config/reparo/reparo.toml \
 		-v $(CURDIR)/${ARTIFACT_DIR}/rpm-spec:/root/rpmbuild/SPECS/tidb.spec \
 		-v $(CURDIR)/${ARTIFACT_DIR}:/root/rpmbuild/RPMS/x86_64/ \
 		$(BUILDER_IMAGE_RPM) rpmbuild -bb /root/rpmbuild/SPECS/tidb.spec
